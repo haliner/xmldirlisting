@@ -31,12 +31,13 @@ the Dropbox ;)
 '''
 
 
+import cgi
+import datetime
+import optparse
 import os
 import os.path
-import cgi
-import time
-import datetime
 import sys
+import time
 
 
 #
@@ -46,14 +47,14 @@ import sys
 html_header = u'''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-  <title>Directory Listing</title>
+  <title>%(title)s</title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 %(stylesheet)s
 %(javascript)s
 </head>
 <body onload="init()">
   <div id="document">
-    <h1>Directory Listing</h1>
+    <h1>%(title)s</h1>
     <div class="dirlisting">'''
 
 html_javascript = u'''<script type="text/javascript">
@@ -177,8 +178,7 @@ html_stylesheet = u'''<style type="text/css">
 </style>'''
 
 html_footer = u'''    </div>
-    <p style="margin-top: 4em; font-size: small;">Automatically generated
-      at %(date)s (took %(time).2f seconds).</p>
+    <p style="margin-top: 4em; font-size: small;">Automatically generated with free software &ldquo;dirlisting.py&rdquo; at %(date)s (took %(time).2f seconds).</p>
   </div>
 </body>
 </html>'''
@@ -237,60 +237,95 @@ def human_readable_time(t):
     return dt.strftime('%d-%b-%Y %H:%M')
 
 def print_dir(path):
-   '''list all files and directories recursively'''
-   filelist = os.listdir(path)
+    '''list all files and directories recursively'''
+    filelist = os.listdir(path)
 
-   # split filelist into directories and files
-   dirs = []
-   files = []
-   for filename in filelist:
-       p = os.path.join(path, filename)
-       if os.path.isdir(p):
-           dirs.append(filename)
-       if os.path.isfile(p):
-           files.append(filename)
+    # split filelist into directories and files
+    dirs = []
+    files = []
+    for filename in filelist:
+        p = os.path.join(path, filename)
+        if os.path.isdir(p):
+            dirs.append(filename)
+        if os.path.isfile(p):
+            files.append(filename)
 
-   # sort lists alphabetically
-   dirs.sort(key=str.lower)
-   files.sort(key=str.lower)
+    # sort lists alphabetically
+    dirs.sort(key=str.lower)
+    files.sort(key=str.lower)
 
-   # no files/directories? -> exit
-   if len(dirs) + len(files) == 0:
-       return
+    # no files/directories? -> exit
+    if len(dirs) + len(files) == 0:
+        return
 
-   for d in dirs:
-       npath = os.path.join(path, d)
-       write_indented((u'<div class="directory-entry">' \
-                       u'<div class="directory-label">%s/</div>') %
-                           cgi.escape(d))
-       indent()
-       print_dir(npath)
-       deindent()
-       write_indented(u'</div>')
+    for d in dirs:
+        npath = os.path.join(path, d)
+        write_indented((u'<div class="directory-entry">' \
+        u'<div class="directory-label">%s/</div>') %
+        cgi.escape(d))
+        indent()
+        print_dir(npath)
+        deindent()
+        write_indented(u'</div>')
 
-   for f in files:
-       npath = os.path.join(path, f)
-       statinfo = os.stat(npath)
-       filesize = cgi.escape(human_readable_filesize(statinfo.st_size))
-       modified = cgi.escape(human_readable_time(statinfo.st_mtime))
+    for f in files:
+        npath = os.path.join(path, f)
+        if options.filename != '-' and os.path.samefile(npath, options.filename):
+            continue
 
-       write_indented((u'<div class="file-entry">'
-                       u'<div class="file-label">'
-                       u'<a href="%s">%s</a>'
-                       u'</div>'
-                       u'<div class="file-size">%s</div>'
-                       u'<div class="file-mtime">%s</div></div>') %
-                           (cgi.escape(npath, True),
-                            cgi.escape(f),
-                            filesize,
-                            modified))
+        statinfo = os.stat(npath)
+        filesize = cgi.escape(human_readable_filesize(statinfo.st_size))
+        modified = cgi.escape(human_readable_time(statinfo.st_mtime))
+
+        write_indented((u'<div class="file-entry">'
+                        u'<div class="file-label">'
+                        u'<a href="%s">%s</a>'
+                        u'</div>'
+                        u'<div class="file-size">%s</div>'
+                        u'<div class="file-mtime">%s</div></div>') %
+                            (cgi.escape(npath, True),
+                             cgi.escape(f),
+                             filesize,
+                             modified))
 
 
 if __name__ == '__main__':
+    op = optparse.OptionParser(version='0.2',
+                               description=
+                               'This small script generates a html file '
+                               'containing a full listing of the current '
+                               'directory. The directory tree is displayed as '
+                               'a tree of nested div-elements. All files a '
+                               'represented as links, so the user can easily '
+                               'navigate to these files. The output is valid '
+                               'HTML 4 (strict) and utf-8 encoded.')
+    op.add_option('-p', '--print-stylesheet', dest='print_stylesheet',
+                  action='store_true',
+                  help='print standard stylesheet and exit')
+    op.add_option('-t', '--title', dest='title', default='Directory Listing',
+                  help='set title to TITLE', metavar='TITLE')
+    op.add_option('-o', '--output', dest='filename', default='-',
+                  help='write output to FILE', metavar='FILE')
+    op.add_option('-e', '--exclude', dest='exclude', action='append',
+                  help='exclude files matching PATTERN', metavar='PATTERN')
+    op.add_option('-r', '--exclude-regexp', dest='exclude_re', action='append',
+                  help='exclude files matching REGEXP', metavar='REGEXP')
+    op.add_option('-s', '--stylesheet', dest='stylesheet',
+                  help='use FILE as external stylesheet', metavar='FILE')
+                    
+    (options, args) = op.parse_args()
+
+    if options.filename == '-':
+        f = sys.stdout
+    else:
+        f = open(options.filename, 'w')
+    
     timer = time.time()
     
     write_indented(html_header % \
-                   {'stylesheet':
+                   {'title':
+                        cgi.escape(options.title),
+                    'stylesheet':
                         indent_string(html_stylesheet, 2),
                     'javascript':
                         indent_string(html_javascript, 2)})
@@ -302,5 +337,8 @@ if __name__ == '__main__':
     write_indented(html_footer % \
                    {'date':
                        cgi.escape(datetime.datetime.today().strftime('%c')),
-                    'time': time.clock()})
-                        #time.time() - timer})
+                    'time':
+                        time.time() - timer})
+
+    if f is not sys.stdout:
+        f.close()
