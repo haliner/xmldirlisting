@@ -184,38 +184,6 @@ html_footer = u'''    </div>
 </html>'''
 
 
-#
-# Global variables
-#
-
-indentation = 0
-f = sys.stdout
-
-
-#
-# Various helper functions
-#
-
-def indent():
-    global indentation
-    indentation += 2
-
-def deindent():
-    global indentation
-    indentation -= 2
-
-def write_indented(string, newline = True, indent = 0):
-    print indentation
-    string = indent_string(string, indentation + indent)
-    if newline:
-        string += '\n'
-    f.write(string)
-
-def indent_string(string, level):
-    out = []
-    for line in string.split('\n'):
-        out.append(u' ' * level + line)
-    return '\n'.join(out)
 
 def human_readable_filesize(filesize):
     if filesize < 1024.0:
