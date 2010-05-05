@@ -1,36 +1,3 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2010  Stefan Haller
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-'''
-This small script generates a html file containing a full listing of the
-current directory. The directory tree is displayed as a tree of nested
-div-elements. All files a represented as links, so the user can easily
-navigate to these files. The output is valid HTML 4 (strict) and utf-8
-encoded.
-
-The main use case of this script for me is Dropbox: Dropbox lets you
-share only single files, but not whole folders. But no-one prevents you
-from uploading a html page that allows everyone to access every file in
-the Dropbox ;)
-
-'''
-
-
 import cgi
 import datetime
 import optparse
@@ -298,18 +265,18 @@ if __name__ == '__main__':
                   help='exclude files matching REGEXP', metavar='REGEXP')
     op.add_option('-s', '--stylesheet', dest='stylesheet',
                   help='use FILE as external stylesheet', metavar='FILE')
-                    
+
     (options, args) = op.parse_args()
 
     if options.filename == '-':
         f = sys.stdout
     else:
         f = open(options.filename, 'w')
-    
+
     if options.print_stylesheet:
         print_stylesheet()
     else:
         dirlisting()
 
     if f is not sys.stdout:
-        f.close()
+        f.close() 
