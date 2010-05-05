@@ -33,6 +33,7 @@ the Dropbox ;)
 import cgi
 import datetime
 import optparse
+import os.path
 import time
 import sys
 
@@ -289,6 +290,73 @@ class Dirlisting(object):
         self.writer.write(html['javascript'])
 
 
+    def process_dir(self, path):
+        def human_readable_filesize(filesize):
+            if filesize < 1024.0:
+                return u'%i B' % filesize
+            units = [u'KiB', u'MiB', u'GiB', u'TiB']
+            for x in units:
+                filesize /= 1024.0
+                if filesize < 1024.0:
+                    return '%.1f %s' % (filesize, x)
+            return '%.1f %s' % (filesize, units[-1])
+
+        def human_readable_time(t):
+            dt = datetime.datetime.fromtimestamp(t)
+            return dt.strftime('%d-%b-%Y %H:%M')
+
+        filelist = os.listdir(path)
+
+        # split filelist into directories and files
+        dirs = []
+        files = []
+        for filename in filelist:
+            p = os.path.join(path, filename)
+            if os.path.isdir(p):
+                dirs.append(filename)
+            if os.path.isfile(p):
+                files.append(filename)
+
+        # sort lists alphabetically
+        dirs.sort(key=str.lower)
+        files.sort(key=str.lower)
+
+        # no files/directories? -> exit
+        if len(dirs) + len(files) == 0:
+            return
+
+        for d in dirs:
+            npath = os.path.join(path, d)
+            self.writer.write(u'<div class="directory-entry">' \
+                              u'<div class="directory-label">%s/</div>' % \
+                                  cgi.escape(d))
+            self.writer.indent()
+            self.process_dir(npath)
+            self.writer.deindent()
+            self.writer.write(u'</div>')
+
+        for f in files:
+            npath = os.path.join(path, f)
+            if self.options.filename != '-' and \
+               os.path.samefile(npath, self.options.filename):
+                continue
+
+            statinfo = os.stat(npath)
+            filesize = cgi.escape(human_readable_filesize(statinfo.st_size))
+            modified = cgi.escape(human_readable_time(statinfo.st_mtime))
+
+            self.writer.write((u'<div class="file-entry">'
+                               u'<div class="file-label">'
+                               u'<a href="%s">%s</a>'
+                               u'</div>'
+                               u'<div class="file-size">%s</div>'
+                               u'<div class="file-mtime">%s</div></div>') %
+                                 (cgi.escape(npath, True),
+                                  cgi.escape(f),
+                                  filesize,
+                                  modified))
+
+
     def dirlisting(self):
         self.substitions = {
             'title': cgi.escape(self.options.title),
@@ -323,6 +391,11 @@ class Dirlisting(object):
             self.writer.write(html['javascript-external'] % self.substitions)
         
         self.writer.write(html['header-2'] % self.substitions)
+
+        self.writer.indent(3)
+        self.process_dir('.')
+        self.writer.deindent(3)
+        
         self.writer.write(html['footer'] % self.substitions)
 
 
