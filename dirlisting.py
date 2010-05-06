@@ -292,14 +292,13 @@ class Dirlisting(object):
 
     def process_dir(self, path):
         def human_readable_filesize(filesize):
-            if filesize < 1024.0:
-                return u'%i B' % filesize
-            units = [u'KiB', u'MiB', u'GiB', u'TiB']
-            for x in units:
-                filesize /= 1024.0
-                if filesize < 1024.0:
-                    return '%.1f %s' % (filesize, x)
-            return '%.1f %s' % (filesize, units[-1])
+            units = (u'%i B', u'%.1f KiB', u'%.1f MiB', u'%.1f GiB')
+            x = 0;
+            while filesize / 1024**x >= 1024:
+                x +=1
+            if x >= len(units):
+                x = len(units)-1
+            return units[x] % (float(filesize) / float(1024**x))
 
         def human_readable_time(t):
             dt = datetime.datetime.fromtimestamp(t)
@@ -320,10 +319,6 @@ class Dirlisting(object):
         # sort lists alphabetically
         dirs.sort(key=str.lower)
         files.sort(key=str.lower)
-
-        # no files/directories? -> exit
-        if len(dirs) + len(files) == 0:
-            return
 
         for d in dirs:
             npath = os.path.join(path, d)
