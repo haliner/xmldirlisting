@@ -281,6 +281,13 @@ class Dirlisting(object):
 
         (self.options, self.args) = op.parse_args()
 
+        # decode input as utf-8
+        for i in ('title', 'filename', 'stylesheet', 'javascript'):
+            attr = getattr(self.options, i)
+            if attr is not None:
+                attr = attr.decode('utf-8')
+                setattr(self.options, i, attr)
+
 
     def print_stylesheet(self):
         self.writer.write(html['stylesheet'])
