@@ -238,7 +238,7 @@ class IndentedWriter(object):
         string = self.indent_string(string, self.indentation + indentation)
         if newline:
             string += '\n'
-        self.stream.write(string)
+        self.stream.write(string.encode('utf-8'))
 
 
 
