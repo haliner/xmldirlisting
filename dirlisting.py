@@ -247,7 +247,7 @@ class Dirlisting(object):
         self.writer = None
         self.options = None
         self.args = None
-        self.substitions = None
+        self.substitutions = None
 
 
     def parse_params(self):
@@ -353,45 +353,45 @@ class Dirlisting(object):
 
 
     def dirlisting(self):
-        self.substitions = {
+        self.substitutions = {
             'title': cgi.escape(self.options.title),
             'date': cgi.escape(datetime.datetime.today().strftime('%c')),
-            'time': 0.0,
+            'time': time.time(),
             'stylesheet-path': self.options.stylesheet,
             'javascript-path': self.options.javascript
         }
 
         for i in ('stylesheet-path', 'javascript-path'):
-            if self.substitions[i] is not None:
-                self.substitions[i] = cgi.escape(self.substitions[i], True)
+            if self.substitutions[i] is not None:
+                self.substitutions[i] = cgi.escape(self.substitutions[i], True)
         
-        self.writer.write(html['header-1'] % self.substitions)
+        self.writer.write(html['header-1'] % self.substitutions)
 
-        if self.substitions['stylesheet-path'] is None:
-            self.writer.write(html['stylesheet-start'] % self.substitions)
+        if self.substitutions['stylesheet-path'] is None:
+            self.writer.write(html['stylesheet-start'] % self.substitutions)
             self.writer.indent(2)
             self.writer.write(html['stylesheet'])
             self.writer.deindent(2)
-            self.writer.write(html['stylesheet-end'] % self.substitions)
+            self.writer.write(html['stylesheet-end'] % self.substitutions)
         else:
-            self.writer.write(html['stylesheet-external'] % self.substitions)
+            self.writer.write(html['stylesheet-external'] % self.substitutions)
 
-        if self.substitions['javascript-path'] is None:
-            self.writer.write(html['javascript-start'] % self.substitions)
+        if self.substitutions['javascript-path'] is None:
+            self.writer.write(html['javascript-start'] % self.substitutions)
             self.writer.indent(2)
             self.writer.write(html['javascript'])
             self.writer.deindent(2)
-            self.writer.write(html['javascript-end'] % self.substitions)
+            self.writer.write(html['javascript-end'] % self.substitutions)
         else:
-            self.writer.write(html['javascript-external'] % self.substitions)
+            self.writer.write(html['javascript-external'] % self.substitutions)
         
-        self.writer.write(html['header-2'] % self.substitions)
+        self.writer.write(html['header-2'] % self.substitutions)
 
         self.writer.indent(3)
         self.process_dir('.')
         self.writer.deindent(3)
         
-        self.writer.write(html['footer'] % self.substitions)
+        self.writer.write(html['footer'] % self.substitutions)
 
 
     def main(self):
