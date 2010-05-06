@@ -337,8 +337,8 @@ class Dirlisting(object):
                 continue
 
             statinfo = os.stat(npath)
-            filesize = cgi.escape(human_readable_filesize(statinfo.st_size))
-            modified = cgi.escape(human_readable_time(statinfo.st_mtime))
+            filesize = human_readable_filesize(statinfo.st_size)
+            modified = human_readable_time(statinfo.st_mtime)
 
             self.writer.write((u'<div class="file-entry">'
                                u'<div class="file-label">'
@@ -348,8 +348,8 @@ class Dirlisting(object):
                                u'<div class="file-mtime">%s</div></div>') %
                                  (cgi.escape(npath, True),
                                   cgi.escape(f),
-                                  filesize,
-                                  modified))
+                                  cgi.escape(filesize),
+                                  cgi.escape(modified)))
 
 
     def dirlisting(self):
