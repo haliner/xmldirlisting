@@ -339,9 +339,11 @@ class Dirlisting(object):
 
         for f in files:
             npath = os.path.join(path, f)
-            if self.options.filename != '-' and \
-            os.path.samefile(npath, self.options.filename):
-                continue
+
+            if hasattr(os.path, 'samefile'):
+                if self.options.filename != '-' and \
+                os.path.samefile(npath, self.options.filename):
+                    continue
 
             statinfo = os.stat(npath)
             filesize = human_readable_filesize(statinfo.st_size)
