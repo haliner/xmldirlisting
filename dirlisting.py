@@ -390,6 +390,8 @@ class Dirlisting(object):
         self.writer.indent(3)
         self.process_dir('.')
         self.writer.deindent(3)
+
+        self.substitutions['time'] = time.time() - self.substitutions['time']
         
         self.writer.write(html['footer'] % self.substitutions)
 
