@@ -208,7 +208,7 @@ class IndentedWriter(object):
 
 
     def open(self, filename):
-        if filename == '-':
+        if filename == u'-':
             self.stream = sys.stdout
         else:
             self.stream = open(filename, 'w')
@@ -229,15 +229,15 @@ class IndentedWriter(object):
 
     def indent_string(self, string, level):
         out = []
-        for line in string.split('\n'):
+        for line in string.split(u'\n'):
             out.append(u' ' * level + line)
-        return '\n'.join(out)
+        return u'\n'.join(out)
 
 
     def write(self, string, newline=True, indentation=0):
         string = self.indent_string(string, self.indentation + indentation)
         if newline:
-            string += '\n'
+            string += u'\n'
         self.stream.write(string.encode('utf-8'))
 
 
@@ -309,7 +309,7 @@ class Dirlisting(object):
 
         def human_readable_time(t):
             dt = datetime.datetime.fromtimestamp(t)
-            return dt.strftime('%d-%b-%Y %H:%M')
+            return unicode(dt.strftime('%d-%b-%Y %H:%M'))
 
         filelist = os.listdir(path)
 
@@ -324,8 +324,8 @@ class Dirlisting(object):
                 files.append(filename)
 
         # sort lists alphabetically
-        dirs.sort(key=str.lower)
-        files.sort(key=str.lower)
+        dirs.sort(key=unicode.lower)
+        files.sort(key=unicode.lower)
 
         for d in dirs:
             npath = os.path.join(path, d)
@@ -340,7 +340,7 @@ class Dirlisting(object):
         for f in files:
             npath = os.path.join(path, f)
             if self.options.filename != '-' and \
-               os.path.samefile(npath, self.options.filename):
+            os.path.samefile(npath, self.options.filename):
                 continue
 
             statinfo = os.stat(npath)
@@ -395,7 +395,7 @@ class Dirlisting(object):
         self.writer.write(html['header-2'] % self.substitutions)
 
         self.writer.indent(3)
-        self.process_dir('.')
+        self.process_dir(u'.')
         self.writer.deindent(3)
 
         self.substitutions['time'] = time.time() - self.substitutions['time']
