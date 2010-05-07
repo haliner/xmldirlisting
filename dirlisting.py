@@ -71,8 +71,8 @@ u'''</head>
   <div id="document">
     <h1>%(title)s</h1>
     <p id="tree-control">Directory Tree Control:
-      <a onclick="foldAll(false);" href="#">Expand All</a>
-      | <a onclick="foldAll(true);" href="#">Collapse All</a>
+      <a onclick="foldAll(false);return false;" href="#">Expand All</a>
+      | <a onclick="foldAll(true);return false;" href="#">Collapse All</a>
     </p>
     <div id="dirlisting">''',
 
