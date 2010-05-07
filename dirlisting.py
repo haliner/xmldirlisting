@@ -70,7 +70,11 @@ u'''</head>
 <body onload="init()">
   <div id="document">
     <h1>%(title)s</h1>
-    <div class="dirlisting">''',
+    <p id="tree-control">Directory Tree Control:
+      <a onclick="foldAll(false);" href="#">Expand All</a>
+      | <a onclick="foldAll(true);" href="#">Collapse All</a>
+    </p>
+    <div id="dirlisting">''',
 
 'footer':
 u'''    </div>
@@ -130,7 +134,7 @@ a:focus {
   color: #bf7300;
 }
 
-.dirlisting {
+#dirlisting {
   line-height: 140%;
 }
 
@@ -166,35 +170,93 @@ a:focus {
 
 .file-mtime {
   right: 40px;
+}
+
+#tree-control {
+  display: none;
 }''',
 
 'javascript':
-u'''function highlight(elem, highl)
+u'''function highlightFile(elem, highl)
 {
-  if (highl)
+  elem.style.backgroundColor = highl ? "#fff0d9": "";
+  elem.style.border          = highl ? "1px solid #ffd699" : "1px solid #fff";
+}
+
+function highlightDirectory(elem, highl)
+{
+  elem.style.color           = highl ? "#bf7300": "";
+  elem.style.textDecoration  = highl ? "underline" : "";
+}
+
+function fold(root, collapse, recursive)
+{
+  var elem = root.firstElementChild;
+  while (elem)
   {
-    elem.style.backgroundColor = "#fff0d9";
-    elem.style.border = "1px solid #ffd699";
+    if ((elem.className == "file-entry") ||
+        (elem.className == "directory-entry"))
+    {
+      elem.style.display = collapse ? "none" : "";
+    }
+    if ((recursive) &&
+        (elem.className == "directory-entry"))
+    {
+      fold(elem, collapse, recursive);
+    }
+    elem = elem.nextElementSibling;
   }
-  else
+}
+
+function unfoldLabel(elem)
+{
+  parent = elem.parentNode;
+  fold(parent, false, false);
+}
+
+function foldAll(collapse)
+{
+  var elem = document.getElementById("dirlisting").firstElementChild;
+  while (elem)
   {
-    elem.style.backgroundColor = "";
-    elem.style.border = "1px solid #fff";
+    if ((elem.className == "file-entry") ||
+        (elem.className == "directory-entry"))
+    {
+      fold(elem, collapse, true);
+    }
+    elem = elem.nextElementSibling;
+  }
+}
+
+function attachEventHandler(root)
+{
+  var elem = root.firstElementChild;
+  while (elem)
+  {
+    if (elem.className == "file-entry")
+    {
+      elem.onmouseover = function(){highlightFile(this, true);};
+      elem.onmouseout = function(){highlightFile(this, false);};
+    }
+    if (elem.className == "directory-label")
+    {
+      elem.onclick = function(){unfoldLabel(this)};
+      elem.onmouseover = function(){highlightDirectory(this, true);};
+      elem.onmouseout = function(){highlightDirectory(this, false);};
+    }
+    if (elem.className == "directory-entry")
+    {
+      attachEventHandler(elem);
+    }
+    elem = elem.nextElementSibling;
   }
 }
 
 function init()
 {
-  var elements = document.getElementsByTagName("div");
-  for (i = 0; i < elements.length; i++)
-  {
-    var element = elements[i];
-    if (element.className == "file-entry")
-    {
-      element.onmouseover = function(){highlight(this, true);};
-      element.onmouseout = function(){highlight(this, false);};
-    }
-  }
+  attachEventHandler(document.getElementById("dirlisting"))
+  foldAll(true);
+  document.getElementById("tree-control").style.display = "block";
 }'''
 
 }
