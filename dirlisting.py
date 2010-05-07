@@ -67,7 +67,7 @@ u'''  </script>''',
 
 'header-2':
 u'''</head>
-<body onload="init()">
+<body>
   <div id="document">
     <h1>%(title)s</h1>
     <p id="tree-control">Directory Tree Control:
@@ -258,7 +258,9 @@ function init()
   attachEventHandler(document.getElementById("dirlisting"))
   foldAll(true);
   document.getElementById("tree-control").style.display = "block";
-}'''
+}
+
+window.onload = init;'''
 
 }
 
