@@ -243,6 +243,7 @@ function attachEventHandler(root)
       elem.onclick = function(){unfoldLabel(this)};
       elem.onmouseover = function(){highlightDirectory(this, true);};
       elem.onmouseout = function(){highlightDirectory(this, false);};
+      elem.style.cursor = "pointer";
     }
     if (elem.className == "directory-entry")
     {
