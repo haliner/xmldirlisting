@@ -436,6 +436,9 @@ class Dirlisting(object):
             filesize = human_readable_filesize(statinfo.st_size)
             modified = human_readable_time(statinfo.st_mtime)
 
+            if os.sep != '/':
+                npath = npath.replace(os.sep, '/')
+
             self.writer.write((u'<div class="file-entry">'
                                u'<div class="file-label">'
                                u'<a href="%s">%s</a>'
