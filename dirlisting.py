@@ -231,11 +231,9 @@ function getFolding(root)
   return false;
 }
 
-function toggleFoldingByLabel(elem)
+function toggleFolding(elem)
 {
-  var parent = elem.parentNode;
-  var folding = getFolding(parent);
-  fold(parent, !folding, false);
+  fold(elem, !getFolding(elem), false);
 }
 
 function attachEventHandler(root)
@@ -252,7 +250,10 @@ function attachEventHandler(root)
     {
       var html = elem.innerHTML;
       elem.innerHTML = '<a href="#">' + html + '</a>';
-      elem.onclick = function(){toggleFoldingByLabel(this);return false;};
+      elem.firstElementChild.onclick = function(){
+          toggleFolding(this.parentNode.parentNode);
+          return false;
+        };
     }
     if (elem.className == "directory-entry")
     {
