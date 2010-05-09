@@ -130,10 +130,6 @@ a:focus {
   color: #bf7300;
 }
 
-.directory-label a {
-  color: #555;
-}
-
 a.js {
   color: #ff9900;
 }
@@ -154,6 +150,10 @@ a.js {
 
 .directory-label {
   font-style: italic;
+}
+
+.directory-label a {
+  color: #555;
 }
 
 .file-label {
