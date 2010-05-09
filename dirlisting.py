@@ -70,10 +70,6 @@ u'''</head>
 <body>
   <div id="document">
     <h1>%(title)s</h1>
-    <p id="tree-control">Directory Tree Control:
-      <a onclick="foldAll(false);return false;" href="#">Expand All</a>
-      | <a onclick="foldAll(true);return false;" href="#">Collapse All</a>
-    </p>
     <div id="dirlisting">''',
 
 'footer':
@@ -134,6 +130,14 @@ a:focus {
   color: #bf7300;
 }
 
+.directory-label a {
+  color: #555;
+}
+
+a.js {
+  color: #ff9900;
+}
+
 #dirlisting {
   line-height: 140%;
 }
@@ -170,10 +174,6 @@ a:focus {
 
 .file-mtime {
   right: 40px;
-}
-
-#tree-control {
-  display: none;
 }''',
 
 'javascript':
@@ -181,12 +181,6 @@ u'''function highlightFile(elem, highl)
 {
   elem.style.backgroundColor = highl ? "#fff0d9": "";
   elem.style.border          = highl ? "1px solid #ffd699" : "1px solid #fff";
-}
-
-function highlightDirectory(elem, highl)
-{
-  elem.style.color           = highl ? "#bf7300": "";
-  elem.style.textDecoration  = highl ? "underline" : "";
 }
 
 function fold(root, collapse, recursive)
@@ -208,12 +202,6 @@ function fold(root, collapse, recursive)
   }
 }
 
-function unfoldLabel(elem)
-{
-  parent = elem.parentNode;
-  fold(parent, false, false);
-}
-
 function foldAll(collapse)
 {
   var elem = document.getElementById("dirlisting").firstElementChild;
@@ -228,6 +216,28 @@ function foldAll(collapse)
   }
 }
 
+function getFolding(root)
+{
+  var elem = root.firstElementChild;
+  while (elem)
+  {
+    if ((elem.className == "file-entry") ||
+        (elem.className == "directory-entry"))
+    {
+      return elem.style.display == "none"
+    }
+    elem = elem.nextElementSibling;
+  }
+  return false;
+}
+
+function toggleFoldingByLabel(elem)
+{
+  var parent = elem.parentNode;
+  var folding = getFolding(parent);
+  fold(parent, !folding, false);
+}
+
 function attachEventHandler(root)
 {
   var elem = root.firstElementChild;
@@ -240,10 +250,9 @@ function attachEventHandler(root)
     }
     if (elem.className == "directory-label")
     {
-      elem.onclick = function(){unfoldLabel(this)};
-      elem.onmouseover = function(){highlightDirectory(this, true);};
-      elem.onmouseout = function(){highlightDirectory(this, false);};
-      elem.style.cursor = "pointer";
+      var html = elem.innerHTML;
+      elem.innerHTML = '<a href="#">' + html + '</a>';
+      elem.onclick = function(){toggleFoldingByLabel(this);return false;};
     }
     if (elem.className == "directory-entry")
     {
@@ -257,7 +266,19 @@ function init()
 {
   attachEventHandler(document.getElementById("dirlisting"))
   foldAll(true);
-  document.getElementById("tree-control").style.display = "block";
+
+  var elem = document.createElement("p");
+  elem.innerHTML =
+    'Directory Tree Control: ' +
+    '<a class="js" onclick="foldAll(false);return false;" href="#">' +
+      'Expand All' +
+    '</a> | ' +
+    '<a class="js" onclick="foldAll(true);return false;" href="#">' +
+      'Collapse All' +
+    '</a>';
+  document.getElementById("document").insertBefore(
+    elem,
+    document.getElementById("dirlisting"));
 }
 
 window.onload = init;'''
