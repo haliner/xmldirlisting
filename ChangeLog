@@ -1,0 +1,11 @@
+2010-05-15  Stefan Haller  <haliner@googlemail.com>
+
+	Version 0.2:
+	* dirlisting.py: Completely rewritten. Requires Python 2.x!
+	  Uses OptParse interface. CSS stylesheet and Javascript separated.
+
+
+2010-03-05  Stefan Haller  <haliner@googlemail.com>
+
+	Version 0.1:
+	* Initial release.
