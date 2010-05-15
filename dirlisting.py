@@ -354,11 +354,11 @@ class Dirlisting(object):
         op.add_option('-o', '--output', dest='filename', default='-',
                     help='write output to FILE', metavar='FILE')
 
-        op.add_option('-e', '--exclude', dest='exclude', action='append',
-                    help='exclude files matching PATTERN', metavar='PATTERN')
-
-        op.add_option('-r', '--exclude-regexp', dest='exclude_re', action='append',
-                    help='exclude files matching REGEXP', metavar='REGEXP')
+#        op.add_option('-e', '--exclude', dest='exclude', action='append',
+#                    help='exclude files matching PATTERN', metavar='PATTERN')
+#
+#        op.add_option('-r', '--exclude-regexp', dest='exclude_re', action='append',
+#                    help='exclude files matching REGEXP', metavar='REGEXP')
 
         op.add_option('-s', '--stylesheet', dest='stylesheet',
                     help='use FILE as external stylesheet file', metavar='FILE')
