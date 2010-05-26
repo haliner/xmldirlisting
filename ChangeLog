@@ -1,3 +1,9 @@
+2010-05-26  Stefan Haller  <haliner@googlemail.com>
+
+  Version 0.3:
+  * dirlisting.py: Parameter "--disable-javascript" added.
+
+
 2010-05-15  Stefan Haller  <haliner@googlemail.com>
 
   Version 0.2:
