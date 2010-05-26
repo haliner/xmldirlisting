@@ -366,6 +366,9 @@ class Dirlisting(object):
         op.add_option('-j', '--javascript', dest='javascript',
                     help='use FILE as external javascript file', metavar='FILE')
 
+        op.add_option('-d', '--disable-javascript', dest='disable_javascript',
+                      action='store_true', default=False)
+
         (self.options, self.args) = op.parse_args()
 
         # decode input as utf-8
@@ -463,7 +466,7 @@ class Dirlisting(object):
         for i in ('stylesheet-path', 'javascript-path'):
             if self.substitutions[i] is not None:
                 self.substitutions[i] = cgi.escape(self.substitutions[i], True)
-        
+
         self.writer.write(html['header-1'] % self.substitutions)
 
         if self.substitutions['stylesheet-path'] is None:
@@ -475,15 +478,17 @@ class Dirlisting(object):
         else:
             self.writer.write(html['stylesheet-external'] % self.substitutions)
 
-        if self.substitutions['javascript-path'] is None:
-            self.writer.write(html['javascript-start'] % self.substitutions)
-            self.writer.indent(2)
-            self.writer.write(html['javascript'])
-            self.writer.deindent(2)
-            self.writer.write(html['javascript-end'] % self.substitutions)
-        else:
-            self.writer.write(html['javascript-external'] % self.substitutions)
-        
+        if not self.options.disable_javascript:
+            if self.substitutions['javascript-path'] is None:
+                self.writer.write(html['javascript-start'] % self.substitutions)
+                self.writer.indent(2)
+                self.writer.write(html['javascript'])
+                self.writer.deindent(2)
+                self.writer.write(html['javascript-end'] % self.substitutions)
+            else:
+                self.writer.write(html['javascript-external'] %
+                                    self.substitutions)
+
         self.writer.write(html['header-2'] % self.substitutions)
 
         self.writer.indent(3)
@@ -491,7 +496,7 @@ class Dirlisting(object):
         self.writer.deindent(3)
 
         self.substitutions['time'] = time.time() - self.substitutions['time']
-        
+
         self.writer.write(html['footer'] % self.substitutions)
 
 
