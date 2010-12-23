@@ -17,17 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 '''
-This small script generates a html file containing a full listing of the
-current directory. The directory tree is displayed as a tree of nested
-div-elements. All files a represented as links, so the user can easily
-navigate to these files. The output is valid HTML 4 (strict) and utf-8
-encoded.
-
-The main use case of this script for me is Dropbox: Dropbox lets you
-share only single files, but not whole folders. But no-one prevents you
-from uploading a html page that allows everyone to access every file in
-the Dropbox ;)
-
+This script generates an xml file containing a full listing of the current
+working directory.
 '''
 
 import cgi
