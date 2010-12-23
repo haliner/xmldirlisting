@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2010  Stefan Haller <haliner@googlemail.com>
@@ -38,7 +38,7 @@ class IndentedWriter(object):
 
 
     def open(self, filename):
-        if filename == u'-':
+        if filename == '-':
             self.stream = sys.stdout
         else:
             self.stream = open(filename, 'w')
@@ -59,16 +59,16 @@ class IndentedWriter(object):
 
     def indent_string(self, string, level):
         out = []
-        for line in string.split(u'\n'):
-            out.append(u' ' * level + line)
-        return u'\n'.join(out)
+        for line in string.split('\n'):
+            out.append(' ' * level + line)
+        return '\n'.join(out)
 
 
     def write(self, string, newline=True, indentation=0):
         string = self.indent_string(string, self.indentation + indentation)
         if newline:
-            string += u'\n'
-        self.stream.write(string.encode('utf-8'))
+            string += '\n'
+        self.stream.write(string)
 
 
 
@@ -114,13 +114,6 @@ class Dirlisting(object):
 
         (self.options, self.args) = op.parse_args()
 
-        # decode input as utf-8
-        for i in ('title', 'filename', 'stylesheet', 'javascript'):
-            attr = getattr(self.options, i)
-            if attr is not None:
-                attr = attr.decode('utf-8')
-                setattr(self.options, i, attr)
-
 
     def print_stylesheet(self):
         self.writer.write(html['stylesheet'])
@@ -132,7 +125,7 @@ class Dirlisting(object):
 
     def process_dir(self, path):
         def human_readable_filesize(filesize):
-            units = (u'%i B', u'%.1f KiB', u'%.1f MiB', u'%.1f GiB')
+            units = ('%i B', '%.1f KiB', '%.1f MiB', '%.1f GiB')
             x = 0;
             while filesize / 1024**x >= 1024:
                 x +=1
@@ -142,7 +135,7 @@ class Dirlisting(object):
 
         def human_readable_time(t):
             dt = datetime.datetime.fromtimestamp(t)
-            return unicode(dt.strftime('%d-%b-%Y %H:%M'))
+            return str(dt.strftime('%d-%b-%Y %H:%M'))
 
         filelist = os.listdir(path)
 
@@ -157,18 +150,18 @@ class Dirlisting(object):
                 files.append(filename)
 
         # sort lists alphabetically
-        dirs.sort(key=unicode.lower)
-        files.sort(key=unicode.lower)
+        dirs.sort(key=str.lower)
+        files.sort(key=str.lower)
 
         for d in dirs:
             npath = os.path.join(path, d)
-            self.writer.write(u'<div class="directory-entry">' \
-                              u'<div class="directory-label">%s/</div>' % \
+            self.writer.write('<div class="directory-entry">' \
+                              '<div class="directory-label">%s/</div>' % \
                                   cgi.escape(d))
             self.writer.indent()
             self.process_dir(npath)
             self.writer.deindent()
-            self.writer.write(u'</div>')
+            self.writer.write('</div>')
 
         for f in files:
             npath = os.path.join(path, f)
@@ -185,12 +178,12 @@ class Dirlisting(object):
             if os.sep != '/':
                 npath = npath.replace(os.sep, '/')
 
-            self.writer.write((u'<div class="file-entry">'
-                               u'<div class="file-label">'
-                               u'<a href="%s">%s</a>'
-                               u'</div>'
-                               u'<div class="file-size">%s</div>'
-                               u'<div class="file-mtime">%s</div></div>') %
+            self.writer.write(('<div class="file-entry">'
+                               '<div class="file-label">'
+                               '<a href="%s">%s</a>'
+                               '</div>'
+                               '<div class="file-size">%s</div>'
+                               '<div class="file-mtime">%s</div></div>') %
                                  (cgi.escape(npath, True),
                                   cgi.escape(f),
                                   cgi.escape(filesize),
@@ -235,7 +228,7 @@ class Dirlisting(object):
         self.writer.write(html['header-2'] % self.substitutions)
 
         self.writer.indent(3)
-        self.process_dir(u'.')
+        self.process_dir('.')
         self.writer.deindent(3)
 
         self.substitutions['time'] = time.time() - self.substitutions['time']
