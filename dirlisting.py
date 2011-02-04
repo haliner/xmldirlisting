@@ -16,242 +16,185 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
 This script generates an xml file containing a full listing of the current
 working directory.
-'''
+"""
 
-import cgi
-import datetime
-import optparse
+import os
 import os.path
-import time
-import sys
+import xml.dom.minidom
 
 
+class FilesystemObject:
 
-class IndentedWriter(object):
-    def __init__(self):
-        self.bol = True
-        self.indentation = 0
-        self.stream = None
+    """Base class for directory and file classes."""
 
+    def __init__(self, parent = None, name = None):
+        self.parent = parent
+        self.name = name
 
-    def open(self, filename):
-        if filename == '-':
-            self.stream = sys.stdout
+    def getFullName(self):
+        """Return the whole path of this object (including the parent's one)."""
+        if self.parent is not None:
+            return os.path.join(self.parent.getFullName(), self.name)
         else:
-            self.stream = open(filename, 'w')
+            return self.name
+
+    def toXmlNode(self, doc, parent = None):
+        """Return a xml element representing the filesystem object.
+
+        doc must be an xml document. parent must be either an xml element or
+        None. If parent is not None, the xml node is automatically appended
+        to the parent as a child node.
+
+        Child classes should overload this function and change the returned
+        xml element afterwards.
+        """
+        node = doc.createElement('')
+        if parent is not None:
+            parent.appendChild(node)
+        node.setAttribute('name', self.name)
+        return node
 
 
-    def close(self):
-        if self.stream is not sys.stdout:
-            self.stream.close()
+class Directory(FilesystemObject):
 
+    """Directory class.
 
-    def indent(self, level=1):
-        self.indentation += 2 * level
+    Represents a single directory. Each directory has a parent (None for the
+    top level directory) and a list of subdirectories and files.
+    """
 
+    def __init__(self, parent = None, name = None):
+        """Delegate call to base class and set class members."""
+        super().__init__(parent, name)
+        self.dirs = []
+        self.files = []
 
-    def deindent(self, level=1):
-        self.indentation -= 2 * level
+    def createDirectory(self, name):
+        """Create subdirectory object.
 
+        This function creates the subdirectory object, appends it to the
+        internal list of subdirectories and returns the newly created object.
 
-    def indent_string(self, string, level):
-        out = []
-        for line in string.split('\n'):
-            out.append(' ' * level + line)
-        return '\n'.join(out)
+        The parent of the new object is set accordingly.
+        """
+        o = Directory(self, name)
+        self.dirs.append(o)
+        return o
 
+    def createFile(self, name):
+        """Create file object.
 
-    def write(self, string, newline=True, indentation=0):
-        string = self.indent_string(string, self.indentation + indentation)
-        if newline:
-            string += '\n'
-        self.stream.write(string)
+        This functions creates the file object, appends it to the internal list
+        of files and returns the newly created object.
 
+        The parent of the new object is set accordingly.
+        """
+        o = File(self, name)
+        self.files.append(o)
+        return o
 
+    def scan(self):
+        """Scan the directory tree below the current directory.
 
-class Dirlisting(object):
-    def __init__(self):
-        self.writer = None
-        self.options = None
-        self.args = None
-        self.substitutions = None
+        All subdirectories are fetched and are put into the list of
+        subdirectory. For each directory a new Directory class will be created
+        and their .scan() function is called recursively.
 
-
-    def parse_params(self):
-        op = optparse.OptionParser(version='0.2')
-
-        op.add_option('--print-stylesheet', dest='print_stylesheet',
-                    action='store_true', default=False,
-                    help='print standard stylesheet and exit')
-
-        op.add_option('--print-javascript', dest='print_javascript',
-                    action='store_true', default=False,
-                    help='print standard stylesheet and exit')
-
-        op.add_option('-t', '--title', dest='title', default='Directory Listing',
-                    help='set title to TITLE', metavar='TITLE')
-
-        op.add_option('-o', '--output', dest='filename', default='-',
-                    help='write output to FILE', metavar='FILE')
-
-#        op.add_option('-e', '--exclude', dest='exclude', action='append',
-#                    help='exclude files matching PATTERN', metavar='PATTERN')
-#
-#        op.add_option('-r', '--exclude-regexp', dest='exclude_re', action='append',
-#                    help='exclude files matching REGEXP', metavar='REGEXP')
-
-        op.add_option('-s', '--stylesheet', dest='stylesheet',
-                    help='use FILE as external stylesheet file', metavar='FILE')
-
-        op.add_option('-j', '--javascript', dest='javascript',
-                    help='use FILE as external javascript file', metavar='FILE')
-
-        op.add_option('-d', '--disable-javascript', dest='disable_javascript',
-                      action='store_true', default=False)
-
-        (self.options, self.args) = op.parse_args()
-
-
-    def print_stylesheet(self):
-        self.writer.write(html['stylesheet'])
-
-
-    def print_javascript(self):
-        self.writer.write(html['javascript'])
-
-
-    def process_dir(self, path):
-        def human_readable_filesize(filesize):
-            units = ('%i B', '%.1f KiB', '%.1f MiB', '%.1f GiB')
-            x = 0;
-            while filesize / 1024**x >= 1024:
-                x +=1
-            if x >= len(units):
-                x = len(units)-1
-            return units[x] % (float(filesize) / float(1024**x))
-
-        def human_readable_time(t):
-            dt = datetime.datetime.fromtimestamp(t)
-            return str(dt.strftime('%d-%b-%Y %H:%M'))
-
-        filelist = os.listdir(path)
-
-        # split filelist into directories and files
+        For each file in the directory an File object is created and it is
+        appended to the list of files.
+        """
+        current = self.getFullName()
         dirs = []
-        files = []
-        for filename in filelist:
-            p = os.path.join(path, filename)
-            if os.path.isdir(p):
-                dirs.append(filename)
-            if os.path.isfile(p):
-                files.append(filename)
-
-        # sort lists alphabetically
-        dirs.sort(key=str.lower)
-        files.sort(key=str.lower)
-
+        files = os.listdir(current)
+        for test in files:
+            if os.path.isdir(os.path.join(current, test)):
+                files.remove(test)
+                dirs.append(test)
+#        files.sort()  # TODO: Sorting needed?
+#        dirs.sort()
         for d in dirs:
-            npath = os.path.join(path, d)
-            self.writer.write('<div class="directory-entry">' \
-                              '<div class="directory-label">%s/</div>' % \
-                                  cgi.escape(d))
-            self.writer.indent()
-            self.process_dir(npath)
-            self.writer.deindent()
-            self.writer.write('</div>')
-
+            self.createDirectory(d).scan()
         for f in files:
-            npath = os.path.join(path, f)
+            self.createFile(f)
 
-            if hasattr(os.path, 'samefile'):
-                if self.options.filename != '-' and \
-                os.path.samefile(npath, self.options.filename):
-                    continue
+    def toXmlNode(self, doc, parent = None):
+        """Return an xml element representing the directory.
 
-            statinfo = os.stat(npath)
-            filesize = human_readable_filesize(statinfo.st_size)
-            modified = human_readable_time(statinfo.st_mtime)
+        See base class' function docstring.
 
-            if os.sep != '/':
-                npath = npath.replace(os.sep, '/')
-
-            self.writer.write(('<div class="file-entry">'
-                               '<div class="file-label">'
-                               '<a href="%s">%s</a>'
-                               '</div>'
-                               '<div class="file-size">%s</div>'
-                               '<div class="file-mtime">%s</div></div>') %
-                                 (cgi.escape(npath, True),
-                                  cgi.escape(f),
-                                  cgi.escape(filesize),
-                                  cgi.escape(modified)))
+        This function calls itself recursively for all subdirectories.
+        """
+        node = super().toXmlNode(doc, parent)
+        node.tagName = 'directory'
+        for directory in self.dirs:
+            directory.toXmlNode(doc, node)
+        for file in self.files:
+            file.toXmlNode(doc, node)
+        return node
 
 
-    def dirlisting(self):
-        self.substitutions = {
-            'title': cgi.escape(self.options.title),
-            'date': cgi.escape(datetime.datetime.today().strftime('%c')),
-            'time': time.time(),
-            'stylesheet-path': self.options.stylesheet,
-            'javascript-path': self.options.javascript
-        }
+class File(FilesystemObject):
 
-        for i in ('stylesheet-path', 'javascript-path'):
-            if self.substitutions[i] is not None:
-                self.substitutions[i] = cgi.escape(self.substitutions[i], True)
+    """File class.
 
-        self.writer.write(html['header-1'] % self.substitutions)
+    Represents a single file. Each file has a parent directory and some
+    properties like ctime, mtime, atime and size.
+    """
 
-        if self.substitutions['stylesheet-path'] is None:
-            self.writer.write(html['stylesheet-start'] % self.substitutions)
-            self.writer.indent(2)
-            self.writer.write(html['stylesheet'])
-            self.writer.deindent(2)
-            self.writer.write(html['stylesheet-end'] % self.substitutions)
-        else:
-            self.writer.write(html['stylesheet-external'] % self.substitutions)
+    def __init__(self, parent, name):
+        """Delegate call to base class and set class members."""
+        super().__init__(parent, name)
+        statinfo = os.stat(self.getFullName())
+        self.ctime = statinfo.st_ctime
+        self.mtime = statinfo.st_mtime
+        self.atime = statinfo.st_atime
+        self.size = statinfo.st_size
 
-        if not self.options.disable_javascript:
-            if self.substitutions['javascript-path'] is None:
-                self.writer.write(html['javascript-start'] % self.substitutions)
-                self.writer.indent(2)
-                self.writer.write(html['javascript'])
-                self.writer.deindent(2)
-                self.writer.write(html['javascript-end'] % self.substitutions)
-            else:
-                self.writer.write(html['javascript-external'] %
-                                    self.substitutions)
+    def toXmlNode(self, doc, parent = None):
+        """Return an xml element representing the directory.
 
-        self.writer.write(html['header-2'] % self.substitutions)
-
-        self.writer.indent(3)
-        self.process_dir('.')
-        self.writer.deindent(3)
-
-        self.substitutions['time'] = time.time() - self.substitutions['time']
-
-        self.writer.write(html['footer'] % self.substitutions)
+        See base class' function docstring.
+        """
+        node = super().toXmlNode(doc, parent)
+        node.tagName = 'file'
+        node.setAttribute('size', str(self.size))
+        node.setAttribute('ctime', str(self.ctime))
+        node.setAttribute('mtime', str(self.mtime))
+        node.setAttribute('atime', str(self.atime))
+        return node
 
 
-    def main(self):
-        self.parse_params()
+class XmlDirlisting():
 
-        self.writer = IndentedWriter()
-        self.writer.open(self.options.filename)
+    """Dirlisting factory, which builds an XML DOM tree."""
 
-        if self.options.print_stylesheet:
-            self.print_stylesheet()
-        elif self.options.print_javascript:
-            self.print_javascript()
-        else:
-            self.dirlisting()
+    def build(self, directory = None):
+        """Return an XML DOM tree of directory.
 
-        self.writer.close()
+        This function builds the current directory and file tree of the
+        given directory. This data is used to build an XML DOM tree, which is
+        returned.
 
+        If directory is None, the tree of the current working directory will
+        be processed.
+        """
+        if directory is None:
+            directory = '.'
+        root_dir = Directory(parent = None, name = directory)
+        root_dir.scan()
+
+        doc = xml.dom.minidom.Document()
+        elem = root_dir.toXmlNode(doc)
+        elem.tagName = 'dirlisting'
+        # remove name attribute from xml root (= top level directory)
+        # TODO: dirty code, remove all attributes instead
+        elem.removeAttributeNode(elem.attributes.item(0))
+        doc.appendChild(elem)
+
+        return doc
 
 if __name__ == '__main__':
-    dl = Dirlisting()
-    dl.main()
+    print(XmlDirlisting().build().toprettyxml('  '), end = '')
