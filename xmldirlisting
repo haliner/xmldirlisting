@@ -107,18 +107,11 @@ class Directory(FilesystemObject):
         appended to the list of files.
         """
         current = self.getFullName()
-        dirs = []
-        files = os.listdir(current)
-        for test in files:
-            if os.path.isdir(os.path.join(current, test)):
-                files.remove(test)
-                dirs.append(test)
-#        files.sort()  # TODO: Sorting needed?
-#        dirs.sort()
-        for d in dirs:
-            self.createDirectory(d).scan()
-        for f in files:
-            self.createFile(f)
+        for entry in os.listdir(current):
+            if os.path.isdir(os.path.join(current, entry)):
+                self.createDirectory(entry).scan()
+            else:
+                self.createFile(entry)
 
     def toXmlNode(self, doc, parent = None):
         """Return an xml element representing the directory.
