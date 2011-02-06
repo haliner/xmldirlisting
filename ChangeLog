@@ -1,3 +1,11 @@
+2011-02-04  Stefan Haller  <haliner@googlemail.com>
+
+  Version 0.4:
+  * dirlisting.py: Renamed to "xmldirlisting".
+  * xmldirlisting: Completely rewritten. Now outputs an XML directory listing.
+  * dirlisting.css, dirlisting.js, dirlisting.xslt: Added example files for
+    xml transformation with an xslt processor.
+
 2010-05-26  Stefan Haller  <haliner@googlemail.com>
 
   Version 0.3:
