@@ -1,0 +1,95 @@
+body {
+  color: #444;
+  background-color: #eee;
+  font-family: Georgia, sans;
+  margin: 16px;
+}
+
+#document {
+  background-color: #fff;
+  padding: 32px;
+  border-width: 3px;
+  border-style: solid;
+  border-color: #ddd #aaa #aaa #ddd;
+  min-width: 600px;
+}
+
+h1 {
+  font-family: "Trebuchet MS", sans;
+  background-color: #aaa;
+  color: #fff;
+  margin-top: 8px;
+  margin-bottom: 32px;
+  margin-left: 16px;
+  margin-right: 32px;
+  padding: 16px;
+  padding-left: 64px;
+  border: 1px solid #444;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:link {
+  color: #ff9900;
+}
+
+a:visited {
+  color: #8f5600;
+}
+
+a:hover {
+  color: #bf7300;
+  text-decoration: underline;
+}
+
+a:focus {
+  color: #bf7300;
+}
+
+a.js {
+  color: #ff9900;
+}
+
+#dirlisting {
+  line-height: 140%;
+}
+
+.directory, .file {
+  margin-left: 5px;
+  padding-left: 20px;
+  border: 1px solid #fff;
+}
+
+.file {
+  position: relative;
+}
+
+.directory-label {
+  font-style: italic;
+}
+
+.directory-label a {
+  color: #555;
+}
+
+.file-label {
+  margin-right: 300px;
+}
+
+.file-size, .file-mtime {
+  position: absolute;
+  color: #999;
+  font-size: small;
+  top: 0;
+  bottom: 0;
+}
+
+.file-size {
+  right: 200px;
+}
+
+.file-mtime {
+  right: 40px;
+}
