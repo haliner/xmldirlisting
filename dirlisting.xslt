@@ -27,6 +27,10 @@
               <xsl:sort select="@name"/>
             </xsl:apply-templates>
           </div>
+          <p class="generator">
+            Automatically generated with free software
+            “<a href="https://launchpad.net/xmldirlisting/">xmldirlisting</a>”.
+          </p>
         </div>
       </body>
     </html>
