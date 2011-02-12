@@ -3,8 +3,10 @@
   Version 0.4:
   * dirlisting.py: Renamed to "xmldirlisting".
   * xmldirlisting: Completely rewritten. Now outputs an XML directory listing.
-  * dirlisting.css, dirlisting.js, dirlisting.xslt: Added example files for
-    xml transformation with an xslt processor.
+  * dirlisting.css, dirlisting.js, dirlisting.xslt, dirlisting.dtd: Added
+    example files for xml transformation with an xslt processor.
+  * README: Wrote readme file which should explain the basic usage.
+
 
 2010-05-26  Stefan Haller  <haliner@googlemail.com>
 
