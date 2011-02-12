@@ -21,6 +21,7 @@ This script generates an xml file containing a full listing of the current
 working directory.
 """
 
+import datetime
 import os
 import os.path
 import xml.dom.minidom
@@ -141,9 +142,9 @@ class File(FilesystemObject):
         """Delegate call to base class and set class members."""
         super().__init__(parent, name)
         statinfo = os.stat(self.getFullName())
-        self.ctime = statinfo.st_ctime
-        self.mtime = statinfo.st_mtime
-        self.atime = statinfo.st_atime
+        self.ctime = datetime.datetime.fromtimestamp(statinfo.st_ctime)
+        self.mtime = datetime.datetime.fromtimestamp(statinfo.st_mtime)
+        self.atime = datetime.datetime.fromtimestamp(statinfo.st_atime)
         self.size = statinfo.st_size
 
     def toXmlNode(self, doc, parent = None):
@@ -153,10 +154,11 @@ class File(FilesystemObject):
         """
         node = super().toXmlNode(doc, parent)
         node.tagName = 'file'
-        node.setAttribute('size', str(self.size))
-        node.setAttribute('ctime', str(self.ctime))
-        node.setAttribute('mtime', str(self.mtime))
-        node.setAttribute('atime', str(self.atime))
+        transform_date = lambda x: str(x)[0:19]
+        node.setAttribute('size', transform_date(self.size))
+        node.setAttribute('ctime', transform_date(self.ctime))
+        node.setAttribute('mtime', transform_date(self.mtime))
+        node.setAttribute('atime', transform_date(self.atime))
         return node
 
 

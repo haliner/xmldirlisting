@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-  <xsl:output method="html" indent="yes"/>
+
+  <!--
+    A HTML file should be generated.
+  -->
+  <xsl:output method="html"/>
 
   <!--
     This template matches the root element of the dirlisting xml file.
@@ -27,6 +31,10 @@
               <xsl:sort select="@name"/>
             </xsl:apply-templates>
           </div>
+          <p class="generator">
+            Automatically generated with free software
+            “<a href="https://launchpad.net/xmldirlisting/">xmldirlisting</a>”.
+          </p>
         </div>
       </body>
     </html>
@@ -60,7 +68,8 @@
     Creates a new container for the file and outputs a relative link to this
     file. The link starts with "./". All directory-names on the ancestor-axis
     are appended to the link. Finally the filename is appended and the link
-    is completed.
+    is completed. The modification time of the file is output as is. File
+    size suffixes are used to make them more readable.
   -->
   <xsl:template match="file">
     <div class="file">
@@ -76,6 +85,29 @@
           </xsl:attribute>
           <xsl:value-of select="@name"/>
         </a>
+      </div>
+      <div class="file-size">
+        <xsl:choose>
+          <xsl:when test="@size > 1073741824">
+            <xsl:value-of select="format-number(@size div 1073741824, '0.00')"/>
+            <xsl:text> GB</xsl:text>
+          </xsl:when>
+          <xsl:when test="@size > 1048576">
+            <xsl:value-of select="format-number(@size div 1048576, '0.00')"/>
+            <xsl:text> MB</xsl:text>
+          </xsl:when>
+          <xsl:when test="@size > 1024">
+            <xsl:value-of select="format-number(@size div 1024, '0.00')"/>
+            <xsl:text> KB</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="@size"/>
+            <xsl:text> B</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </div>
+      <div class="file-mtime">
+        <xsl:value-of select="@mtime"/>
       </div>
     </div>
   </xsl:template>

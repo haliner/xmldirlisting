@@ -1,0 +1,15 @@
+<!ELEMENT dirlisting (directory | file)*>
+
+<!ELEMENT directory (directory | file)*>
+<!ATTLIST directory
+  name   CDATA  #REQUIRED
+>
+
+<!ELEMENT file EMPTY>
+<!ATTLIST file
+  name   CDATA  #REQUIRED
+  atime  CDATA  #REQUIRED
+  ctime  CDATA  #REQUIRED
+  mtime  CDATA  #REQUIRED
+  size   CDATA  #REQUIRED
+>
