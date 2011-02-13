@@ -11,18 +11,18 @@
  What Exactly Does xmldirlisting?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- The xmldirlisting project allows you to easily generate an XML file, which
- contains the directory listing of the current working directory. The scripts
+ The xmldirlisting project allows you to easily generate an XML file which
+ contains the directory listing of the current working directory.  The scripts
  travels downwards the whole directory tree recursively and gathers information
- about the files and directories. The resulting XML tree can be manipulated and
- processed with other tools. There are also example files included, which are
+ about the files and directories.  The resulting XML tree can be manipulated and
+ processed with other tools.  There are also example files included, which are
  showing how to create a HTML directory listing with the help of an XSLT
  stylesheet processor (will be discussed later).
 
- Please note, that the script needs a Python 3 interpreter installed. Most
+ Please note, that the script needs a Python 3 interpreter installed.  Most
  distributions are shipping Python 2 interpreters, but they optionally provide
- also the newer ones. Because the script was written with the Python 3 syntax
- in mind, another interpreter would probably fail. So if your interpreter
+ also the newer ones.  Because the script was written with the Python 3 syntax
+ in mind, another interpreter would probably fail.  So if your interpreter
  complains about syntax errors, check your interpreters' version at first.
 
 
@@ -59,17 +59,17 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  There are no special needs --- you might even not install the xmldirlisting
- script and instead run it within the source distribution. But most likely you
- want to install it in some way into your system. For that you can use the
- setup.py script.
+ script and instead run it within the source distribution.  But most likely you
+ want to install it in some way into your system.  Use the setup.py script for
+ doing this job.
 
 
  How to Invoke?
 ~~~~~~~~~~~~~~~~
 
- The script will generate for the current working directory, so you probably
- want to change it first. Executing the script will then make it print the
- xml data to it's standard output.
+ The script will generate the directory listing for current working directory,
+ so you probably want to change your working directory first.  Executing the
+ script will make it print the xml data to it's standard output.
 
  Example usage:
 
@@ -80,19 +80,19 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  One example usage is the creation of an HTML dirlisting, which gives access
- to all files of a directory. The example files include in the source
- distribution are exactly doing this. You need an XSLT processor like
- xmlstarlet, Xalan or other similar tools.
+ to all files of a directory.  The example files included in the source
+ distribution are exactly doing this.  You need an XSLT processor like
+ xmlstarlet, Xalan or other similar tools, if you want to use the example files.
 
  Example usage:
 
    ./xmldirlisting >dirlisting.xml
    xmlstarlet tr dirlisting.xslt dirlisting.xml >index.html
 
- The file `index.html.' will now contain a full hyperlinked and HTML directory
- listing. It uses HTML, CSS, JavaScript and of course XSLT for generating the
- HTML file. Extending the template file might be a good start for your own
- solution.
+ The file `index.html' will now contain a full hyperlinked HTML directory
+ listing including all subdirectories.  It uses HTML, CSS, JavaScript and of
+ course XSLT for generating the HTML file.  Extending the template file might be
+ a good start for your own solution, which satisfies your needs.
 
 
  How Can I Contact the Developer?
