@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='xmldirlisting',
-    version='0.1',
+    version='0.4',
     description='XML Dirlisting',
     author='Stefan Haller',
     author_email='haliner@googlemail.com',
