@@ -1,3 +1,9 @@
+2011-06-05  Stefan Haller  <haliner@googlemail.com>
+
+  Version 0.5:
+  * dirlisting.xslt: XSLT stylesheet outputs XHTML doctype now.
+
+
 2011-02-26  Stefan Haller  <haliner@googlemail.com>
 
   Version 0.4:
